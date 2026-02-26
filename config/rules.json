@@ -1,6 +1,205 @@
 {
-  "programStartDate": "",
-  "fields": {},
-  "softRuleKeywords": [],
-  "systemRules": {}
+  "programStartDate": "2026-07-01",
+  "softRuleKeywords": [
+    "approved by",
+    "special case",
+    "documentation pending",
+    "waiver granted"
+  ],
+  "systemRules": {
+    "maxSoftExceptions": 2
+  },
+  "fields": {
+    "fullName": {
+      "label": "Full Name",
+      "type": "text",
+      "inputType": "text",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "validations": {
+        "required": true,
+        "minLength": 2,
+        "pattern": "^[A-Za-z ]+$"
+      },
+      "messages": {
+        "required": "Full name is required.",
+        "minLength": "Full name must be at least 2 characters.",
+        "pattern": "Full name cannot contain numbers or special characters."
+      }
+    },
+    "email": {
+      "label": "Email Address",
+      "type": "text",
+      "inputType": "text",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "validations": {
+        "required": true,
+        "format": "email",
+        "unique": true
+      },
+      "messages": {
+        "required": "Email address is required.",
+        "format": "Please enter a valid email address (e.g., name@domain.com).",
+        "unique": "This email address is already registered in the system."
+      }
+    },
+    "phone": {
+      "label": "Phone Number",
+      "type": "text",
+      "inputType": "text",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "validations": {
+        "required": true,
+        "pattern": "^[6-9][0-9]{9}$"
+      },
+      "messages": {
+        "required": "Phone number is required.",
+        "pattern": "Phone must be a 10-digit Indian mobile number starting with 6, 7, 8, or 9."
+      }
+    },
+    "dateOfBirth": {
+      "label": "Date of Birth",
+      "type": "date",
+      "inputType": "date",
+      "ruleType": "soft",
+      "exceptionAllowed": true,
+      "validations": {
+        "required": true,
+        "ageMin": 18,
+        "ageMax": 35
+      },
+      "messages": {
+        "required": "Date of birth is required.",
+        "ageMin": "Candidate must be at least 18 years old on the program start date.",
+        "ageMax": "Candidate must be 35 years old or younger on the program start date."
+      }
+    },
+    "highestQualification": {
+      "label": "Highest Qualification",
+      "type": "select",
+      "inputType": "select",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "allowedValues": ["B.Tech", "B.E.", "B.Sc", "BCA", "M.Tech", "M.Sc", "MCA", "MBA"],
+      "validations": {
+        "required": true,
+        "enum": ["B.Tech", "B.E.", "B.Sc", "BCA", "M.Tech", "M.Sc", "MCA", "MBA"]
+      },
+      "messages": {
+        "required": "Please select a qualification.",
+        "enum": "Qualification must be one of the approved degree types."
+      }
+    },
+    "graduationYear": {
+      "label": "Graduation Year",
+      "type": "number",
+      "inputType": "number",
+      "ruleType": "soft",
+      "exceptionAllowed": true,
+      "validations": {
+        "required": true,
+        "min": 2015,
+        "max": 2025
+      },
+      "messages": {
+        "required": "Graduation year is required.",
+        "min": "Graduation year must be 2015 or later.",
+        "max": "Graduation year must be 2025 or earlier."
+      }
+    },
+    "percentageOrCgpa": {
+      "label": "Percentage / CGPA",
+      "type": "number",
+      "inputType": "number",
+      "ruleType": "soft",
+      "exceptionAllowed": true,
+      "modes": ["percentage", "cgpa"],
+      "validations": {
+        "required": true,
+        "percentageMin": 60,
+        "cgpaMin": 6.0,
+        "cgpaMax": 10
+      },
+      "messages": {
+        "required": "Percentage or CGPA is required.",
+        "percentageMin": "Percentage must be at least 60%.",
+        "cgpaMin": "CGPA must be at least 6.0 on a 10-point scale.",
+        "cgpaMax": "CGPA cannot exceed 10.0."
+      }
+    },
+    "screeningTestScore": {
+      "label": "Screening Test Score",
+      "type": "number",
+      "inputType": "number",
+      "ruleType": "soft",
+      "exceptionAllowed": true,
+      "validations": {
+        "required": true,
+        "min": 0,
+        "max": 100,
+        "threshold": 40
+      },
+      "messages": {
+        "required": "Screening test score is required.",
+        "min": "Score cannot be negative.",
+        "max": "Score cannot exceed 100.",
+        "threshold": "Screening test score must be at least 40 out of 100."
+      }
+    },
+    "interviewStatus": {
+      "label": "Interview Status",
+      "type": "select",
+      "inputType": "select",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "allowedValues": ["Cleared", "Waitlisted", "Rejected"],
+      "validations": {
+        "required": true,
+        "enum": ["Cleared", "Waitlisted", "Rejected"],
+        "blockIfRejected": true
+      },
+      "messages": {
+        "required": "Interview status is required.",
+        "enum": "Interview status must be Cleared, Waitlisted, or Rejected.",
+        "blockIfRejected": "Rejected candidates cannot be enrolled. Submission is blocked."
+      }
+    },
+    "aadhaarNumber": {
+      "label": "Aadhaar Number",
+      "type": "text",
+      "inputType": "text",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "validations": {
+        "required": true,
+        "pattern": "^[0-9]{12}$"
+      },
+      "messages": {
+        "required": "Aadhaar number is required.",
+        "pattern": "Aadhaar must be exactly 12 digits. No letters or special characters."
+      }
+    },
+    "offerLetterSent": {
+      "label": "Offer Letter Sent",
+      "type": "select",
+      "inputType": "select",
+      "ruleType": "strict",
+      "exceptionAllowed": false,
+      "allowedValues": ["Yes", "No"],
+      "validations": {
+        "required": true,
+        "crossField": {
+          "dependsOn": "interviewStatus",
+          "allowedWhen": ["Cleared", "Waitlisted"],
+          "restrictedValue": "Yes"
+        }
+      },
+      "messages": {
+        "required": "Please indicate whether the offer letter has been sent.",
+        "crossField": "Offer letter can only be sent to candidates with status Cleared or Waitlisted."
+      }
+    }
+  }
 }
