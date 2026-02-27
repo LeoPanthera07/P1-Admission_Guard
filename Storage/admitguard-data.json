@@ -28,14 +28,44 @@
     "graduationYear": "2023",
     "percentageOrCgpa": "7",
     "screeningTestScore": "60",
-    "interviewStatus": "Cleared",
-    "aadhaarNumber": "121245869545",
+    "interviewStatus": "Waitlisted",
+    "aadhaarNumber": "121245869599",
     "offerLetterSent": "No",
     "percentageMode": "cgpa",
     "exceptionCount": 0,
     "flaggedForManager": false,
     "exceptions": {},
-    "createdAt": "2026-02-27T04:39:10.699Z",
-    "id": "AG-1772167150699"
+    "createdAt": "2026-02-27T16:07:28.620Z",
+    "id": "AG-1772167150699",
+    "updatedAt": "2026-02-27T16:07:28.620Z"
+  },
+  {
+    "percentageMode": "cgpa",
+    "fullName": "Darshan Brahmabhatta",
+    "email": "db.abd@baps.org",
+    "phone": "9898254298",
+    "dateOfBirth": "1989-12-20",
+    "highestQualification": "M.Sc",
+    "graduationYear": "2012",
+    "percentageOrCgpa": "5.5",
+    "screeningTestScore": "80",
+    "interviewStatus": "Waitlisted",
+    "aadhaarNumber": "111111111111",
+    "offerLetterSent": "No",
+    "exceptionCount": 3,
+    "flaggedForManager": true,
+    "exceptions": {
+      "dateOfBirth": {
+        "rationale": "Approved by Sam Altman to do this course"
+      },
+      "graduationYear": {
+        "rationale": "Approved by Sam Altman to do this course"
+      },
+      "percentageOrCgpa": {
+        "rationale": "Approved by Sam Altman to do this course"
+      }
+    },
+    "createdAt": "2026-02-27T18:10:21.447Z",
+    "id": "AG-1772215821447"
   }
 ]

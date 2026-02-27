@@ -8,7 +8,8 @@
     "waiver granted"
   ],
   "systemRules": {
-    "maxSoftExceptions": 2
+    "maxSoftExceptions": 2,
+    "rationaleMinLength": 30
   },
   "fields": {
     "fullName": {
@@ -34,12 +35,12 @@
       "order": 2,
       "validations": {
         "required": true,
-        "format": "email",
-        "unique": true
+        "unique": true,
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
       },
       "messages": {
         "required": "Email address is required.",
-        "format": "Please enter a valid email address (e.g. name@domain.com).",
+        "pattern": "Please enter a valid email address (e.g. name@domain.com).",
         "unique": "This email is already registered. Each candidate must have a unique email."
       }
     },
@@ -114,6 +115,12 @@
       "order": 7,
       "validations": {
         "required": true,
+
+        "modes": {
+          "percentage": { "threshold": 60 },
+          "cgpa": { "threshold": 6.0, "max": 10.0 }
+        },
+
         "percentageMin": 60,
         "cgpaMin": 6.0,
         "cgpaMax": 10.0
@@ -136,6 +143,8 @@
         "required": true,
         "min": 0,
         "max": 100,
+
+        "threshold": 40,
         "passMark": 40
       },
       "messages": {

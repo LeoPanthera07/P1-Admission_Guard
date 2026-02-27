@@ -3,130 +3,238 @@
 /**
  * validator.js — AdmitGuard
  *
- * Prompt-03: case-insensitive email, spaces-only → empty
- * Prompt-04: integer-precise age via calculateAgeOnDate() per spec
+ * Prompt-06: ZERO business-rule values hardcoded here.
+ * All thresholds, enums, regex, bounds, program dates MUST come from config/rules.json.
+ *
+ * Notes:
+ * - If config does not provide a needed rule (e.g., email pattern), we do NOT fallback to a hardcoded rule.
+ * - That keeps JS rule-free and forces rules.json to be the single source of truth.
  */
 
-// ── Prompt-04 age calculation (exact spec implementation) ────────────────────
+// Prompt-04: integer-precise age via calculateAgeOnDate
 function calculateAgeOnDate(dobString, referenceDateString) {
   var dob = new Date(dobString);
   var ref = new Date(referenceDateString);
+  if (isNaN(dob) || isNaN(ref)) return NaN;
+
   var age = ref.getFullYear() - dob.getFullYear();
   var monthDiff = ref.getMonth() - dob.getMonth();
-  if (monthDiff < 0 || (monthDiff === 0 && ref.getDate() < dob.getDate())) {
-    age--;
-  }
+  if (monthDiff < 0 || (monthDiff === 0 && ref.getDate() < dob.getDate())) age--;
   return age;
 }
 
-function validateField(fieldName, value, formState, config, existingSubs) {
-  var cfg = config.fields[fieldName];
-  if (!cfg) return { isValid:true, isStrictViolation:false, isSoftViolation:false, messages:[] };
+function isBlank(v) {
+  return v === undefined || v === null || String(v).trim() === '';
+}
 
-  var v    = cfg.validations || {};
-  var m    = cfg.messages    || {};
+function asTrimmedString(v) {
+  return (v === undefined || v === null) ? '' : String(v).trim();
+}
+
+function toNumber(v) {
+  if (v === undefined || v === null || v === '') return NaN;
+  var n = parseFloat(String(v));
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function hasNumber(x) {
+  return typeof x === 'number' && Number.isFinite(x);
+}
+
+function safeRegExp(pattern) {
+  // Pattern must come from config (Prompt-06). If invalid, treat as "no regex available".
+  if (pattern === undefined || pattern === null || pattern === '') return null;
+  try {
+    return new RegExp(pattern);
+  } catch (e) {
+    return null;
+  }
+}
+
+/**
+ * validateField(fieldName, value, formState, config, existingSubs)
+ * returns:
+ * { isValid, isStrictViolation, isSoftViolation, messages[] }
+ */
+function validateField(fieldName, value, formState, config, existingSubs) {
+  var cfg = config && config.fields ? config.fields[fieldName] : null;
+  if (!cfg) {
+    return { isValid: true, isStrictViolation: false, isSoftViolation: false, messages: [] };
+  }
+
+  var v = cfg.validations || {};
+  var m = cfg.messages || {};
   var msgs = [];
 
-  // Required — spaces-only treated as empty (Prompt-03)
-  var trimmed = value ? String(value).trim() : '';
-  if (v.required && !trimmed) {
-    msgs.push(m.required || fieldName + ' is required.');
-    return { isValid:false, isStrictViolation:cfg.ruleType==='strict', isSoftViolation:cfg.ruleType==='soft', messages:msgs };
+  var trimmed = asTrimmedString(value);
+
+  // Required (config key: fields.<field>.validations.required)
+  if (v.required && isBlank(trimmed)) {
+    msgs.push(m.required || (cfg.label || fieldName) + ' is required.');
+    return {
+      isValid: false,
+      isStrictViolation: cfg.ruleType === 'strict',
+      isSoftViolation: cfg.ruleType === 'soft',
+      messages: msgs
+    };
   }
-  if (!trimmed) return { isValid:true, isStrictViolation:false, isSoftViolation:false, messages:[] };
 
-  var s = trimmed;
+  // Empty but not required => valid
+  if (isBlank(trimmed)) {
+    return { isValid: true, isStrictViolation: false, isSoftViolation: false, messages: [] };
+  }
 
-  // Email format
-  if (v.format === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) msgs.push(m.format);
+  // ── Generic validations driven by config ───────────────────────────────────
 
-  // Email uniqueness — case-insensitive (Prompt-03 FIX-1)
-  if (v.unique && existingSubs && !msgs.length) {
-    var currentId   = formState._editingId || null;
-    var sLower      = s.toLowerCase();
-    var isDuplicate = existingSubs.some(function(sub) {
-      return sub.email && sub.email.toLowerCase() === sLower && sub.id !== currentId;
+  // Min length (config key: fields.<field>.validations.minLength)
+  if (hasNumber(v.minLength) && trimmed.length < v.minLength) {
+    msgs.push(m.minLength || 'Too short.');
+  }
+
+  // Regex pattern (config key: fields.<field>.validations.pattern)
+  // Prompt-06: do not hardcode regexes anywhere.
+  if (v.pattern) {
+    var rx = safeRegExp(v.pattern);
+    if (!rx) {
+      msgs.push(m.pattern || 'Invalid validation pattern in config.');
+    } else if (!rx.test(trimmed)) {
+      msgs.push(m.pattern || 'Invalid format.');
+    }
+  }
+
+  // Email format legacy flag (config key currently might be fields.email.validations.format)
+  // Prompt-06: if you want email validation, provide validations.pattern in rules.json.
+  if (v.format === 'email' && !v.pattern) {
+    // No hardcoded fallback allowed.
+    msgs.push(m.format || 'Email validation requires fields.email.validations.pattern in rules.json.');
+  }
+
+  // Enum list (config key: fields.<field>.validations.enum)
+  if (Array.isArray(v.enum) && v.enum.length) {
+    if (v.enum.indexOf(trimmed) === -1) msgs.push(m.enum || 'Invalid value.');
+  }
+
+  // Blocked values (config key: fields.<field>.validations.blockedValues OR blockIfValue)
+  if (v.blockIfValue !== undefined && v.blockIfValue !== null) {
+    if (trimmed === String(v.blockIfValue)) msgs.push(m.blockIfValue || m.blockedValues || 'This value is not allowed.');
+  } else if (Array.isArray(v.blockedValues) && v.blockedValues.length) {
+    if (v.blockedValues.indexOf(trimmed) !== -1) msgs.push(m.blockedValues || 'This value is not allowed.');
+  }
+
+  // Cross-field validation (config key: fields.<field>.validations.crossField)
+  if (v.crossField && msgs.length === 0) {
+    var cf = v.crossField;
+    var depVal = formState ? formState[cf.dependsOn] : undefined;
+
+    // If triggerValue matches, then depVal must be within allowedWhen[]
+    if (trimmed === String(cf.triggerValue)) {
+      var allowed = Array.isArray(cf.allowedWhen) ? cf.allowedWhen : [];
+      if (allowed.indexOf(depVal) === -1) {
+        msgs.push(cf.message || m.crossField || 'Cross-field validation failed.');
+      }
+    }
+  }
+
+  // Uniqueness (config key: fields.email.validations.unique) — kept generic here
+  if (v.unique && existingSubs && msgs.length === 0) {
+    var currentId = formState ? formState.editingId : null;
+    var sLower = trimmed.toLowerCase();
+    var isDuplicate = existingSubs.some(function (sub) {
+      if (!sub) return false;
+      // uniqueness is evaluated on same fieldName when possible; fallback to email for backward compatibility
+      var subVal = (sub[fieldName] !== undefined && sub[fieldName] !== null) ? String(sub[fieldName]) : (sub.email || '');
+      return subVal && String(subVal).toLowerCase() === sLower && sub.id !== currentId;
     });
-    if (isDuplicate) msgs.push(m.unique);
+    if (isDuplicate) msgs.push(m.unique || 'Value already exists.');
   }
 
-  // Pattern
-  if (v.pattern && !new RegExp(v.pattern).test(s)) msgs.push(m.pattern);
-
-  // minLength
-  if (v.minLength && s.length < v.minLength) msgs.push(m.minLength);
-
-  // Enum
-  if (v.enum && v.enum.indexOf(s) === -1) msgs.push(m.enum);
-
-  // Blocked values
-  if (v.blockedValues && v.blockedValues.indexOf(s) !== -1) msgs.push(m.blockedValues);
-
-  // Cross-field
-  if (v.crossField && !msgs.length) {
-    var cf     = v.crossField;
-    var depVal = formState[cf.dependsOn] || '';
-    if (s === cf.triggerValue && cf.allowedWhen.indexOf(depVal) === -1) msgs.push(cf.message);
-  }
-
-  // ── Soft rules (Prompt-04) ────────────────────────────────────────────────
-  if (cfg.ruleType === 'soft') {
-
-    // Date of Birth — integer age via spec function (Prompt-04)
+  // ── Soft-rule validations (all thresholds from config) ──────────────────────
+  if (cfg.ruleType === 'soft' && msgs.length === 0) {
+    // Date of Birth age range:
+    // config keys:
+    // - programStartDate
+    // - fields.dateOfBirth.validations.ageMin / ageMax
     if (fieldName === 'dateOfBirth') {
-      var dob = new Date(s);
-      if (!isNaN(dob)) {
-        var age = calculateAgeOnDate(s, config.programStartDate);
-        if (age < v.ageMin)      msgs.push(m.ageMin);
-        else if (age > v.ageMax) msgs.push(m.ageMax);
+      var age = calculateAgeOnDate(trimmed, config.programStartDate);
+      if (!isNaN(age)) {
+        if (hasNumber(v.ageMin) && age < v.ageMin) msgs.push(m.ageMin || 'Below minimum age.');
+        else if (hasNumber(v.ageMax) && age > v.ageMax) msgs.push(m.ageMax || 'Above maximum age.');
       }
     }
 
-    // Graduation Year
+    // Graduation year range:
+    // config keys: fields.graduationYear.validations.min / max
     if (fieldName === 'graduationYear') {
-      var yr = parseInt(s, 10);
+      var yr = parseInt(trimmed, 10);
       if (!isNaN(yr)) {
-        if (yr < v.min)      msgs.push(m.min);
-        else if (yr > v.max) msgs.push(m.max);
+        if (hasNumber(v.min) && yr < v.min) msgs.push(m.min || 'Year too early.');
+        else if (hasNumber(v.max) && yr > v.max) msgs.push(m.max || 'Year too late.');
       }
     }
 
-    // Percentage / CGPA — reads mode from formState (Prompt-04)
+    // Percentage / CGPA:
+    // config keys: fields.percentageOrCgpa.validations.percentageMin / cgpaMin / cgpaMax
     if (fieldName === 'percentageOrCgpa') {
-      var num = parseFloat(s);
+      var num = toNumber(trimmed);
       if (!isNaN(num)) {
-        if (formState.percentageMode === 'cgpa') {
-          if (num < v.cgpaMin)       msgs.push(m.cgpaMin);
-          else if (num > v.cgpaMax)  msgs.push(m.cgpaMax);
+        var mode = formState && formState.percentageMode ? formState.percentageMode : 'percentage';
+        if (mode === 'cgpa') {
+          if (hasNumber(v.cgpaMin) && num < v.cgpaMin) msgs.push(m.cgpaMin || 'CGPA too low.');
+          else if (hasNumber(v.cgpaMax) && num > v.cgpaMax) msgs.push(m.cgpaMax || 'CGPA too high.');
         } else {
-          if (num < v.percentageMin) msgs.push(m.percentageMin);
+          if (hasNumber(v.percentageMin) && num < v.percentageMin) msgs.push(m.percentageMin || 'Percentage too low.');
         }
       }
     }
 
-    // Screening Test Score
+    // Screening test score bounds + pass mark:
+    // config keys: fields.screeningTestScore.validations.min / max / passMark
     if (fieldName === 'screeningTestScore') {
-      var score = parseFloat(s);
+      var score = toNumber(trimmed);
       if (!isNaN(score)) {
-        if (score < 0)               msgs.push(m.min);
-        else if (score > 100)        msgs.push(m.max);
-        else if (score < v.passMark) msgs.push(m.passMark);
+        if (hasNumber(v.min) && score < v.min) msgs.push(m.min || 'Below minimum.');
+        else if (hasNumber(v.max) && score > v.max) msgs.push(m.max || 'Above maximum.');
+        else if (hasNumber(v.passMark) && score < v.passMark) msgs.push(m.passMark || 'Below pass mark.');
       }
     }
   }
 
-  var isStrict = cfg.ruleType === 'strict' && msgs.length > 0;
-  var isSoft   = cfg.ruleType === 'soft'   && msgs.length > 0;
-  return { isValid:msgs.length===0, isStrictViolation:isStrict, isSoftViolation:isSoft, messages:msgs };
+  var isStrict = (cfg.ruleType === 'strict') && (msgs.length > 0);
+  var isSoft = (cfg.ruleType === 'soft') && (msgs.length > 0);
+
+  return {
+    isValid: msgs.length === 0,
+    isStrictViolation: isStrict,
+    isSoftViolation: isSoft,
+    messages: msgs
+  };
 }
 
 function validateForm(formState, config, existingSubs) {
-  var strictViolations=[], softViolations=[], fieldResults={};
-  Object.keys(config.fields).forEach(function(fn) {
-    var r = validateField(fn, formState[fn]||'', formState, config, existingSubs);
+  var strictViolations = [];
+  var softViolations = [];
+  var fieldResults = {};
+
+  Object.keys((config && config.fields) ? config.fields : {}).forEach(function (fn) {
+    var r = validateField(fn, formState ? formState[fn] : '', formState, config, existingSubs);
     fieldResults[fn] = r;
-    if (r.isStrictViolation) strictViolations.push(Object.assign({field:fn,label:config.fields[fn].label},r));
-    if (r.isSoftViolation)   softViolations.push(Object.assign({field:fn,label:config.fields[fn].label},r));
+
+    if (r.isStrictViolation) {
+      strictViolations.push(Object.assign({ field: fn, label: config.fields[fn].label }, r));
+    }
+    if (r.isSoftViolation) {
+      softViolations.push(Object.assign({ field: fn, label: config.fields[fn].label }, r));
+    }
   });
-  return { isFormValid:strictViolations.length===0, strictViolations:strictViolations, softViolations:softViolations, fieldResults:fieldResults };
+
+  return {
+    isFormValid: strictViolations.length === 0,
+    strictViolations: strictViolations,
+    softViolations: softViolations,
+    fieldResults: fieldResults
+  };
 }
+
+// Make available to app.js in non-module setup
+window.validateField = validateField;
+window.validateForm = validateForm;
