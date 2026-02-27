@@ -1,13 +1,23 @@
 'use strict';
 
 /**
- * validator.js — AdmitGuard validation engine
- * All rule checks read from CONFIG passed in — no hardcoding.
+ * validator.js — AdmitGuard
  *
- * Prompt-03 fixes:
- *   FIX-1: Email uniqueness is case-insensitive
- *   FIX-2: Spaces-only values treated as empty via .trim()
+ * Prompt-03: case-insensitive email, spaces-only → empty
+ * Prompt-04: integer-precise age via calculateAgeOnDate() per spec
  */
+
+// ── Prompt-04 age calculation (exact spec implementation) ────────────────────
+function calculateAgeOnDate(dobString, referenceDateString) {
+  var dob = new Date(dobString);
+  var ref = new Date(referenceDateString);
+  var age = ref.getFullYear() - dob.getFullYear();
+  var monthDiff = ref.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && ref.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
 
 function validateField(fieldName, value, formState, config, existingSubs) {
   var cfg = config.fields[fieldName];
@@ -17,7 +27,7 @@ function validateField(fieldName, value, formState, config, existingSubs) {
   var m    = cfg.messages    || {};
   var msgs = [];
 
-  // Required — spaces-only treated as empty
+  // Required — spaces-only treated as empty (Prompt-03)
   var trimmed = value ? String(value).trim() : '';
   if (v.required && !trimmed) {
     msgs.push(m.required || fieldName + ' is required.');
@@ -30,11 +40,11 @@ function validateField(fieldName, value, formState, config, existingSubs) {
   // Email format
   if (v.format === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s)) msgs.push(m.format);
 
-  // Email uniqueness — case-insensitive (FIX-1)
+  // Email uniqueness — case-insensitive (Prompt-03 FIX-1)
   if (v.unique && existingSubs && !msgs.length) {
     var currentId   = formState._editingId || null;
     var sLower      = s.toLowerCase();
-    var isDuplicate = existingSubs.some(function(sub){
+    var isDuplicate = existingSubs.some(function(sub) {
       return sub.email && sub.email.toLowerCase() === sLower && sub.id !== currentId;
     });
     if (isDuplicate) msgs.push(m.unique);
@@ -59,19 +69,20 @@ function validateField(fieldName, value, formState, config, existingSubs) {
     if (s === cf.triggerValue && cf.allowedWhen.indexOf(depVal) === -1) msgs.push(cf.message);
   }
 
-  // Soft rules
+  // ── Soft rules (Prompt-04) ────────────────────────────────────────────────
   if (cfg.ruleType === 'soft') {
-    var programDate = new Date(config.programStartDate);
 
+    // Date of Birth — integer age via spec function (Prompt-04)
     if (fieldName === 'dateOfBirth') {
       var dob = new Date(s);
       if (!isNaN(dob)) {
-        var ageYears = (programDate - dob) / (365.25*24*3600*1000);
-        if (ageYears < v.ageMin)       msgs.push(m.ageMin);
-        else if (ageYears > v.ageMax)  msgs.push(m.ageMax);
+        var age = calculateAgeOnDate(s, config.programStartDate);
+        if (age < v.ageMin)      msgs.push(m.ageMin);
+        else if (age > v.ageMax) msgs.push(m.ageMax);
       }
     }
 
+    // Graduation Year
     if (fieldName === 'graduationYear') {
       var yr = parseInt(s, 10);
       if (!isNaN(yr)) {
@@ -80,6 +91,7 @@ function validateField(fieldName, value, formState, config, existingSubs) {
       }
     }
 
+    // Percentage / CGPA — reads mode from formState (Prompt-04)
     if (fieldName === 'percentageOrCgpa') {
       var num = parseFloat(s);
       if (!isNaN(num)) {
@@ -92,11 +104,12 @@ function validateField(fieldName, value, formState, config, existingSubs) {
       }
     }
 
+    // Screening Test Score
     if (fieldName === 'screeningTestScore') {
       var score = parseFloat(s);
       if (!isNaN(score)) {
-        if (score < 0)              msgs.push(m.min);
-        else if (score > 100)       msgs.push(m.max);
+        if (score < 0)               msgs.push(m.min);
+        else if (score > 100)        msgs.push(m.max);
         else if (score < v.passMark) msgs.push(m.passMark);
       }
     }
@@ -112,8 +125,8 @@ function validateForm(formState, config, existingSubs) {
   Object.keys(config.fields).forEach(function(fn) {
     var r = validateField(fn, formState[fn]||'', formState, config, existingSubs);
     fieldResults[fn] = r;
-    if (r.isStrictViolation) strictViolations.push(Object.assign({field:fn, label:config.fields[fn].label}, r));
-    if (r.isSoftViolation)   softViolations.push(Object.assign({field:fn, label:config.fields[fn].label}, r));
+    if (r.isStrictViolation) strictViolations.push(Object.assign({field:fn,label:config.fields[fn].label},r));
+    if (r.isSoftViolation)   softViolations.push(Object.assign({field:fn,label:config.fields[fn].label},r));
   });
   return { isFormValid:strictViolations.length===0, strictViolations:strictViolations, softViolations:softViolations, fieldResults:fieldResults };
 }
