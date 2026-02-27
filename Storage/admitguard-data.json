@@ -1,0 +1,21 @@
+[
+  {
+    "fullName": "ajay patel",
+    "email": "ajay@ap.in",
+    "phone": "9998991215",
+    "dateOfBirth": "2004-04-13",
+    "highestQualification": "B.Tech",
+    "graduationYear": "2021",
+    "percentageOrCgpa": "6.9",
+    "screeningTestScore": "53",
+    "interviewStatus": "Waitlisted",
+    "aadhaarNumber": "999914440033",
+    "offerLetterSent": "Yes",
+    "exceptionCount": 0,
+    "flaggedForManager": true,
+    "exceptions": {},
+    "createdAt": "2026-02-27T03:32:23.058Z",
+    "id": "AG-1772163143058",
+    "updatedAt": "2026-02-27T03:32:56.362Z"
+  }
+]

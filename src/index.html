@@ -1,641 +1,227 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>AdmitGuard — Admission Validation</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="./styles.css"/>
 </head>
 <body>
 
-  <!-- ═══════════════════════════════════════
-       HEADER / NAV
-  ═══════════════════════════════════════ -->
-  <header class="app-header" id="app-header">
-    <div class="header-inner">
+  <!-- ═══ TOAST ════════════════════════════════════════════════════════════ -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-      <div class="brand">
-        <span class="brand-icon">🛡️</span>
+  <!-- ═══ HEADER ═══════════════════════════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M20 2L4 9v12c0 10.5 6.8 20.3 16 23 9.2-2.7 16-12.5 16-23V9L20 2z"
+              fill="url(#shield-grad)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+        <path d="M13 22l5 5 9-10" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="shield-grad" x1="4" y1="2" x2="36" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#4f46e5"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="brand-text">
         <span class="brand-name">AdmitGuard</span>
-        <span class="brand-tagline">Admission Validation</span>
+        <span class="brand-tagline">Futurense · Admission Validation</span>
       </div>
+      <div class="brand-divider"></div>
+    </div>
 
-      <nav class="nav-tabs" role="navigation" aria-label="Main navigation">
-        <button class="nav-tab active" data-view="form" id="nav-form" aria-selected="true">
-          <span class="tab-icon">📋</span>
-          New Candidate
-        </button>
-        <button class="nav-tab" data-view="audit" id="nav-audit" aria-selected="false">
-          <span class="tab-icon">📊</span>
-          Audit Log
-        </button>
-        <button class="nav-tab" data-view="dashboard" id="nav-dashboard" aria-selected="false">
-          <span class="tab-icon">📈</span>
-          Dashboard
-        </button>
-      </nav>
+    <nav class="header-nav" aria-label="Main navigation">
+      <button class="nav-btn" data-nav="form">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+        New Candidate
+      </button>
+      <button class="nav-btn" data-nav="audit">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        Audit Log
+      </button>
+      <button class="nav-btn" data-nav="dashboard">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="13" width="4" height="8"/><rect x="10" y="9" width="4" height="12"/><rect x="17" y="5" width="4" height="16"/></svg>
+        Dashboard
+      </button>
+      <button class="nav-btn" data-nav="config">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        Configure Rules
+      </button>
+    </nav>
 
-      <div class="header-actions">
-        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle light/dark mode" title="Toggle theme">
-          <span class="theme-icon" id="theme-icon">🌙</span>
-        </button>
-      </div>
-
+    <div class="header-right">
+      <span id="storage-badge" class="storage-badge storage-badge--default" title="Storage location">🗄 Browser Storage</span>
+      <button id="theme-toggle" class="theme-toggle-btn">🌙 Dark</button>
     </div>
   </header>
 
-  <!-- ═══════════════════════════════════════
-       MAIN CONTENT AREA
-  ═══════════════════════════════════════ -->
-  <main class="app-main" id="app-main">
+  <!-- ═══ MAIN ══════════════════════════════════════════════════════════════ -->
+  <main class="app-main">
 
-    <!-- ───────────────────────────────────
-         VIEW 1: CANDIDATE FORM
-    ─────────────────────────────────────── -->
-    <section id="view-form" class="view active" aria-label="New Candidate Entry">
-
-      <!-- Rejected Banner (hidden by default — wired in Phase 3) -->
-      <div class="banner banner-error hidden" id="banner-rejected" role="alert">
-        <span class="banner-icon">🚫</span>
-        <strong>Rejected candidates cannot be enrolled.</strong> Please review the candidate's status before proceeding.
-      </div>
-
-      <!-- Strict Error Summary Banner (hidden by default) -->
-      <div class="banner banner-error hidden" id="banner-strict-summary" role="alert">
-        <span class="banner-icon">⛔</span>
-        <strong>Please fix the following errors before submitting:</strong>
-        <ul id="strict-error-list" class="banner-error-list"></ul>
-      </div>
-
-      <!-- Manager Flag Banner (hidden by default) -->
-      <div class="banner banner-warning hidden" id="banner-flagged" role="alert">
-        <span class="banner-icon">⚠️</span>
-        <strong>This candidate has more than 2 exceptions.</strong> Entry will be flagged for manager review.
-      </div>
-
-      <div class="form-card" id="form-card">
-
-        <div class="form-card-header">
-          <div class="form-card-title-block">
-            <h1 class="form-card-title">New Candidate Entry</h1>
-            <p class="form-card-subtitle">Fill in all fields below. Strict violations block submission. Soft rule warnings can be overridden with a valid rationale.</p>
-          </div>
-          <div class="exception-counter hidden" id="exception-counter">
-            <span class="exception-counter-label">Active Exceptions</span>
-            <span class="exception-counter-value" id="exception-count-display">0 / 4</span>
-          </div>
+    <!-- ── VIEW: Form ──────────────────────────────────────────────────── -->
+    <section id="view-form" class="view">
+      <div class="form-card">
+        <div class="form-card__header">
+          <h1 class="form-title">New Candidate Entry</h1>
+          <p class="form-subtitle">
+            Fields marked <span class="required-mark">*</span> are required.
+            <span class="badge-legend">
+              <span class="rule-badge rule-badge--strict">Strict</span> no override &nbsp;
+              <span class="rule-badge rule-badge--soft">Soft</span> exception allowed
+            </span>
+          </p>
         </div>
-
-        <form id="candidate-form" novalidate autocomplete="off">
-
-          <!-- ── SECTION: Personal Information ─── -->
-          <fieldset class="form-section">
-            <legend class="section-legend">
-              <span class="section-number">01</span>
-              Personal Information
-            </legend>
-
-            <!-- Full Name -->
-            <div class="field-group" id="fg-fullName" data-field="fullName">
-              <label class="field-label" for="fullName">
-                Full Name
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <input
-                type="text"
-                id="fullName"
-                name="fullName"
-                class="field-input"
-                placeholder="e.g. Priya Sharma"
-                aria-required="true"
-                aria-describedby="fullName-error"
-                maxlength="100"
-              />
-              <span class="field-error" id="fullName-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Email -->
-            <div class="field-group" id="fg-email" data-field="email">
-              <label class="field-label" for="email">
-                Email Address
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <input
-                type="text"
-                id="email"
-                name="email"
-                class="field-input"
-                placeholder="e.g. priya.sharma@email.com"
-                aria-required="true"
-                aria-describedby="email-error"
-                maxlength="150"
-              />
-              <span class="field-error" id="email-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Phone -->
-            <div class="field-group" id="fg-phone" data-field="phone">
-              <label class="field-label" for="phone">
-                Phone Number
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <div class="input-prefix-wrap">
-                <span class="input-prefix">+91</span>
-                <input
-                  type="text"
-                  id="phone"
-                  name="phone"
-                  class="field-input input-with-prefix"
-                  placeholder="9876543210"
-                  aria-required="true"
-                  aria-describedby="phone-error phone-hint"
-                  maxlength="10"
-                  inputmode="numeric"
-                />
-              </div>
-              <span class="field-hint" id="phone-hint">10-digit mobile number starting with 6, 7, 8, or 9</span>
-              <span class="field-error" id="phone-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Date of Birth -->
-            <div class="field-group" id="fg-dateOfBirth" data-field="dateOfBirth">
-              <label class="field-label" for="dateOfBirth">
-                Date of Birth
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-soft" title="Soft rule — exception with rationale allowed">Soft</span>
-              </label>
-              <input
-                type="date"
-                id="dateOfBirth"
-                name="dateOfBirth"
-                class="field-input"
-                aria-required="true"
-                aria-describedby="dateOfBirth-error dateOfBirth-hint"
-              />
-              <span class="field-hint" id="dateOfBirth-hint">Candidate must be 18–35 years old on program start date (Jul 1, 2026)</span>
-              <span class="field-error" id="dateOfBirth-error" role="alert" aria-live="polite"></span>
-              <!-- Exception block — shown only on soft violation (wired in Phase 4) -->
-              <div class="exception-block hidden" id="exception-block-dateOfBirth">
-                <div class="exception-warning">
-                  <span>⚠️</span>
-                  <span id="exception-msg-dateOfBirth">This candidate does not meet the standard age criteria.</span>
-                </div>
-                <label class="exception-toggle-label">
-                  <input type="checkbox" class="exception-toggle" id="exc-toggle-dateOfBirth" data-field="dateOfBirth" />
-                  <span class="toggle-slider"></span>
-                  Mark as Exception
-                </label>
-                <div class="rationale-block hidden" id="rationale-block-dateOfBirth">
-                  <label class="field-label" for="rationale-dateOfBirth">Exception Rationale <span class="required-star">*</span></label>
-                  <textarea
-                    id="rationale-dateOfBirth"
-                    name="rationale-dateOfBirth"
-                    class="field-textarea"
-                    placeholder='Minimum 30 characters. Must include: "approved by", "special case", "documentation pending", or "waiver granted".'
-                    rows="3"
-                    aria-describedby="rationale-dateOfBirth-error"
-                  ></textarea>
-                  <span class="field-error" id="rationale-dateOfBirth-error" role="alert" aria-live="polite"></span>
-                  <span class="char-counter" id="char-counter-dateOfBirth">0 / 30 min</span>
-                </div>
-              </div>
-            </div>
-
-          </fieldset>
-
-          <!-- ── SECTION: Academic Details ─── -->
-          <fieldset class="form-section">
-            <legend class="section-legend">
-              <span class="section-number">02</span>
-              Academic Details
-            </legend>
-
-            <!-- Highest Qualification -->
-            <div class="field-group" id="fg-highestQualification" data-field="highestQualification">
-              <label class="field-label" for="highestQualification">
-                Highest Qualification
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <select id="highestQualification" name="highestQualification" class="field-select" aria-required="true" aria-describedby="highestQualification-error">
-                <option value="">— Select qualification —</option>
-                <option value="B.Tech">B.Tech</option>
-                <option value="B.E.">B.E.</option>
-                <option value="B.Sc">B.Sc</option>
-                <option value="BCA">BCA</option>
-                <option value="M.Tech">M.Tech</option>
-                <option value="M.Sc">M.Sc</option>
-                <option value="MCA">MCA</option>
-                <option value="MBA">MBA</option>
-              </select>
-              <span class="field-error" id="highestQualification-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Graduation Year -->
-            <div class="field-group" id="fg-graduationYear" data-field="graduationYear">
-              <label class="field-label" for="graduationYear">
-                Graduation Year
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-soft" title="Soft rule — exception with rationale allowed">Soft</span>
-              </label>
-              <input
-                type="number"
-                id="graduationYear"
-                name="graduationYear"
-                class="field-input"
-                placeholder="e.g. 2022"
-                min="2000"
-                max="2030"
-                aria-required="true"
-                aria-describedby="graduationYear-error graduationYear-hint"
-                inputmode="numeric"
-              />
-              <span class="field-hint" id="graduationYear-hint">Must be between 2015 and 2025 (inclusive)</span>
-              <span class="field-error" id="graduationYear-error" role="alert" aria-live="polite"></span>
-              <!-- Exception block -->
-              <div class="exception-block hidden" id="exception-block-graduationYear">
-                <div class="exception-warning">
-                  <span>⚠️</span>
-                  <span id="exception-msg-graduationYear">This candidate's graduation year is outside the accepted range.</span>
-                </div>
-                <label class="exception-toggle-label">
-                  <input type="checkbox" class="exception-toggle" id="exc-toggle-graduationYear" data-field="graduationYear" />
-                  <span class="toggle-slider"></span>
-                  Mark as Exception
-                </label>
-                <div class="rationale-block hidden" id="rationale-block-graduationYear">
-                  <label class="field-label" for="rationale-graduationYear">Exception Rationale <span class="required-star">*</span></label>
-                  <textarea
-                    id="rationale-graduationYear"
-                    name="rationale-graduationYear"
-                    class="field-textarea"
-                    placeholder='Minimum 30 characters. Must include: "approved by", "special case", "documentation pending", or "waiver granted".'
-                    rows="3"
-                    aria-describedby="rationale-graduationYear-error"
-                  ></textarea>
-                  <span class="field-error" id="rationale-graduationYear-error" role="alert" aria-live="polite"></span>
-                  <span class="char-counter" id="char-counter-graduationYear">0 / 30 min</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Percentage / CGPA with mode toggle -->
-            <div class="field-group" id="fg-percentageOrCgpa" data-field="percentageOrCgpa">
-              <label class="field-label">
-                Percentage / CGPA
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-soft" title="Soft rule — exception with rationale allowed">Soft</span>
-              </label>
-              <div class="radio-toggle-group" role="group" aria-label="Score mode">
-                <label class="radio-toggle-option">
-                  <input type="radio" name="scoreMode" value="percentage" id="mode-percentage" checked />
-                  <span>Percentage %</span>
-                </label>
-                <label class="radio-toggle-option">
-                  <input type="radio" name="scoreMode" value="cgpa" id="mode-cgpa" />
-                  <span>CGPA /10</span>
-                </label>
-              </div>
-              <div class="input-suffix-wrap">
-                <input
-                  type="number"
-                  id="percentageOrCgpa"
-                  name="percentageOrCgpa"
-                  class="field-input input-with-suffix"
-                  placeholder="e.g. 72.5"
-                  step="0.01"
-                  min="0"
-                  max="100"
-                  aria-required="true"
-                  aria-describedby="percentageOrCgpa-error percentageOrCgpa-hint"
-                  inputmode="decimal"
-                />
-                <span class="input-suffix" id="score-suffix">%</span>
-              </div>
-              <span class="field-hint" id="percentageOrCgpa-hint">Minimum 60% or CGPA 6.0/10</span>
-              <span class="field-error" id="percentageOrCgpa-error" role="alert" aria-live="polite"></span>
-              <!-- Exception block -->
-              <div class="exception-block hidden" id="exception-block-percentageOrCgpa">
-                <div class="exception-warning">
-                  <span>⚠️</span>
-                  <span id="exception-msg-percentageOrCgpa">This candidate does not meet the minimum academic score criteria.</span>
-                </div>
-                <label class="exception-toggle-label">
-                  <input type="checkbox" class="exception-toggle" id="exc-toggle-percentageOrCgpa" data-field="percentageOrCgpa" />
-                  <span class="toggle-slider"></span>
-                  Mark as Exception
-                </label>
-                <div class="rationale-block hidden" id="rationale-block-percentageOrCgpa">
-                  <label class="field-label" for="rationale-percentageOrCgpa">Exception Rationale <span class="required-star">*</span></label>
-                  <textarea
-                    id="rationale-percentageOrCgpa"
-                    name="rationale-percentageOrCgpa"
-                    class="field-textarea"
-                    placeholder='Minimum 30 characters. Must include: "approved by", "special case", "documentation pending", or "waiver granted".'
-                    rows="3"
-                    aria-describedby="rationale-percentageOrCgpa-error"
-                  ></textarea>
-                  <span class="field-error" id="rationale-percentageOrCgpa-error" role="alert" aria-live="polite"></span>
-                  <span class="char-counter" id="char-counter-percentageOrCgpa">0 / 30 min</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Screening Test Score -->
-            <div class="field-group" id="fg-screeningTestScore" data-field="screeningTestScore">
-              <label class="field-label" for="screeningTestScore">
-                Screening Test Score
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-soft" title="Soft rule — exception with rationale allowed">Soft</span>
-              </label>
-              <div class="input-suffix-wrap">
-                <input
-                  type="number"
-                  id="screeningTestScore"
-                  name="screeningTestScore"
-                  class="field-input input-with-suffix"
-                  placeholder="e.g. 65"
-                  min="0"
-                  max="100"
-                  aria-required="true"
-                  aria-describedby="screeningTestScore-error screeningTestScore-hint"
-                  inputmode="numeric"
-                />
-                <span class="input-suffix">/ 100</span>
-              </div>
-              <span class="field-hint" id="screeningTestScore-hint">Minimum passing score is 40 out of 100</span>
-              <span class="field-error" id="screeningTestScore-error" role="alert" aria-live="polite"></span>
-              <!-- Exception block -->
-              <div class="exception-block hidden" id="exception-block-screeningTestScore">
-                <div class="exception-warning">
-                  <span>⚠️</span>
-                  <span id="exception-msg-screeningTestScore">This candidate's screening test score is below the minimum threshold.</span>
-                </div>
-                <label class="exception-toggle-label">
-                  <input type="checkbox" class="exception-toggle" id="exc-toggle-screeningTestScore" data-field="screeningTestScore" />
-                  <span class="toggle-slider"></span>
-                  Mark as Exception
-                </label>
-                <div class="rationale-block hidden" id="rationale-block-screeningTestScore">
-                  <label class="field-label" for="rationale-screeningTestScore">Exception Rationale <span class="required-star">*</span></label>
-                  <textarea
-                    id="rationale-screeningTestScore"
-                    name="rationale-screeningTestScore"
-                    class="field-textarea"
-                    placeholder='Minimum 30 characters. Must include: "approved by", "special case", "documentation pending", or "waiver granted".'
-                    rows="3"
-                    aria-describedby="rationale-screeningTestScore-error"
-                  ></textarea>
-                  <span class="field-error" id="rationale-screeningTestScore-error" role="alert" aria-live="polite"></span>
-                  <span class="char-counter" id="char-counter-screeningTestScore">0 / 30 min</span>
-                </div>
-              </div>
-            </div>
-
-          </fieldset>
-
-          <!-- ── SECTION: Admission & Identity ─── -->
-          <fieldset class="form-section">
-            <legend class="section-legend">
-              <span class="section-number">03</span>
-              Admission &amp; Identity
-            </legend>
-
-            <!-- Interview Status -->
-            <div class="field-group" id="fg-interviewStatus" data-field="interviewStatus">
-              <label class="field-label" for="interviewStatus">
-                Interview Status
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <select id="interviewStatus" name="interviewStatus" class="field-select" aria-required="true" aria-describedby="interviewStatus-error">
-                <option value="">— Select status —</option>
-                <option value="Cleared">Cleared</option>
-                <option value="Waitlisted">Waitlisted</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-              <span class="field-error" id="interviewStatus-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Aadhaar Number -->
-            <div class="field-group" id="fg-aadhaarNumber" data-field="aadhaarNumber">
-              <label class="field-label" for="aadhaarNumber">
-                Aadhaar Number
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <input
-                type="text"
-                id="aadhaarNumber"
-                name="aadhaarNumber"
-                class="field-input"
-                placeholder="12-digit Aadhaar number"
-                aria-required="true"
-                aria-describedby="aadhaarNumber-error aadhaarNumber-hint"
-                maxlength="12"
-                inputmode="numeric"
-              />
-              <span class="field-hint" id="aadhaarNumber-hint">Exactly 12 digits — no letters or spaces</span>
-              <span class="field-error" id="aadhaarNumber-error" role="alert" aria-live="polite"></span>
-            </div>
-
-            <!-- Offer Letter Sent -->
-            <div class="field-group" id="fg-offerLetterSent" data-field="offerLetterSent">
-              <label class="field-label" for="offerLetterSent">
-                Offer Letter Sent
-                <span class="required-star" aria-hidden="true">*</span>
-                <span class="rule-badge rule-strict" title="Strict rule — no exceptions allowed">Strict</span>
-              </label>
-              <select id="offerLetterSent" name="offerLetterSent" class="field-select" aria-required="true" aria-describedby="offerLetterSent-error">
-                <option value="">— Select —</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
-              <span class="field-hint">Only allowed if Interview Status is Cleared or Waitlisted</span>
-              <span class="field-error" id="offerLetterSent-error" role="alert" aria-live="polite"></span>
-            </div>
-
-          </fieldset>
-
-          <!-- ── FORM FOOTER ─── -->
-          <div class="form-footer">
-            <div class="form-footer-left">
-              <span class="required-note"><span class="required-star">*</span> Required fields</span>
-              <div class="exception-summary hidden" id="exception-summary">
-                <span class="exception-dot"></span>
-                <span id="exception-summary-text">0 active exception(s)</span>
-              </div>
-            </div>
-            <div class="form-footer-right">
-              <button type="button" class="btn btn-ghost" id="btn-reset">
-                🔄 Reset Form
-              </button>
-              <button type="submit" class="btn btn-primary" id="btn-submit" disabled>
-                Save Candidate →
-              </button>
-            </div>
+        <div id="editing-banner"    class="alert alert--info"   style="display:none;"></div>
+        <div id="rejected-banner"   class="alert alert--danger" style="display:none;" role="alert" aria-live="assertive"></div>
+        <div id="form-error-banner" class="alert alert--danger" style="display:none;" role="alert" aria-live="polite"></div>
+        <form id="candidate-form" novalidate>
+          <div id="candidate-form-fields" class="form-fields-grid"></div>
+          <div id="exception-counter" class="exception-counter" style="display:none;">
+            Active exceptions: <strong id="exception-count-val">0</strong>
+            <span class="exception-max-label">/ 2 max before flagging</span>
           </div>
-
+          <div id="flagged-banner" class="alert alert--warning" style="display:none;" role="alert"></div>
+          <div class="form-actions">
+            <button type="button" id="reset-btn"  class="btn btn--ghost">↺ Reset Form</button>
+            <button type="submit" id="submit-btn" class="btn btn--primary" disabled>💾 Save Candidate</button>
+          </div>
         </form>
       </div>
-
-      <!-- ── SUCCESS SCREEN (hidden by default) ─── -->
-      <div class="success-screen hidden" id="success-screen" role="status" aria-live="polite">
-        <div class="success-card">
-          <div class="success-icon">✅</div>
-          <h2 class="success-title">Candidate Saved Successfully</h2>
-          <p class="success-subtitle">The candidate record has been added to the audit log.</p>
-          <div class="success-summary" id="success-summary"></div>
-          <div class="success-actions">
-            <button class="btn btn-ghost" id="btn-new-candidate">➕ New Candidate</button>
-            <button class="btn btn-primary" id="btn-go-audit" data-view="audit">📊 Go to Audit Log</button>
-          </div>
-        </div>
-      </div>
-
     </section>
 
-    <!-- ───────────────────────────────────
-         VIEW 2: AUDIT LOG
-    ─────────────────────────────────────── -->
-    <section id="view-audit" class="view hidden" aria-label="Audit Log">
+    <!-- ── VIEW: Success ───────────────────────────────────────────────── -->
+    <section id="view-success" class="view">
+      <div class="success-card">
+        <div class="success-icon">✅</div>
+        <h2 class="success-title">Candidate Saved!</h2>
+        <p class="success-desc">The record has been added to the audit log.</p>
+        <div id="success-summary"></div>
+        <div class="success-actions">
+          <button id="new-candidate-btn" class="btn btn--primary">+ New Candidate</button>
+          <button id="go-audit-btn"      class="btn btn--secondary">View Audit Log →</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── VIEW: Audit Log ─────────────────────────────────────────────── -->
+    <section id="view-audit" class="view">
       <div class="page-card">
-        <div class="page-card-header">
-          <div>
-            <h2 class="page-title">Audit Log</h2>
-            <p class="page-subtitle">All candidate submissions with timestamps and exception flags</p>
-          </div>
-          <div class="page-card-actions">
-            <button class="btn btn-ghost btn-sm" id="btn-export-json">⬇️ Export JSON</button>
-            <button class="btn btn-ghost btn-sm" id="btn-export-csv">⬇️ Export CSV</button>
-            <button class="btn btn-danger-ghost btn-sm" id="btn-clear-log">🗑️ Clear Log</button>
+        <div class="page-card__header">
+          <div class="page-header-row">
+            <div>
+              <h2 class="page-title">Audit Log</h2>
+              <p class="page-desc">All candidate submissions — newest first. Click Edit to modify, Flag to mark for review, Delete to remove.</p>
+            </div>
+            <div class="export-btns">
+              <button id="btn-export-csv"  class="btn btn--secondary btn--sm">⬇ CSV</button>
+              <button id="btn-export-json" class="btn btn--secondary btn--sm">⬇ JSON</button>
+            </div>
           </div>
         </div>
-
-        <!-- Filters -->
-        <div class="audit-filters">
-          <input type="text" class="filter-input" id="filter-search" placeholder="🔍 Search by name, email or phone..." aria-label="Search audit log" />
-          <select class="filter-select" id="filter-flagged" aria-label="Filter by flagged status">
-            <option value="">All Entries</option>
-            <option value="flagged">Flagged Only</option>
-            <option value="clean">Clean Only</option>
-          </select>
-          <select class="filter-select" id="filter-status" aria-label="Filter by interview status">
-            <option value="">All Statuses</option>
-            <option value="Cleared">Cleared</option>
-            <option value="Waitlisted">Waitlisted</option>
-            <option value="Rejected">Rejected</option>
-          </select>
+        <div class="audit-controls">
+          <input type="text" id="audit-search" class="audit-search" placeholder="Search by name or email…"/>
+          <select id="filter-status"     class="filter-select"><option value="">All Statuses</option><option>Cleared</option><option>Waitlisted</option><option>Rejected</option></select>
+          <select id="filter-flagged"    class="filter-select"><option value="">All Entries</option><option value="yes">Flagged only</option><option value="no">Not flagged</option></select>
+          <select id="filter-exceptions" class="filter-select"><option value="">Any Exceptions</option><option value="yes">Has exceptions</option><option value="no">No exceptions</option></select>
+          <span class="audit-count" id="audit-count">0 records</span>
         </div>
-
-        <!-- Audit Table -->
-        <div class="table-scroll-wrap">
-          <table class="audit-table" id="audit-table" aria-label="Candidate submissions">
-            <thead>
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Email</th>
-                <th scope="col">Submitted At</th>
-                <th scope="col">Exceptions</th>
-                <th scope="col">Flagged</th>
-                <th scope="col">Interview</th>
-                <th scope="col">Offer Letter</th>
-                <th scope="col">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="audit-tbody">
-              <tr>
-                <td colspan="9" class="empty-state">
-                  <span class="empty-icon">📭</span>
-                  <p>No submissions yet. Add a candidate to see entries here.</p>
-                </td>
-              </tr>
-            </tbody>
+        <div class="table-wrapper">
+          <table id="audit-table" class="data-table">
+            <thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Submitted</th><th>Exceptions</th><th>Flagged</th><th>Interview</th><th>Actions</th></tr></thead>
+            <tbody><tr><td colspan="8" class="empty-state">No submissions yet.</td></tr></tbody>
           </table>
         </div>
       </div>
+    </section>
 
-      <!-- Detail Modal -->
-      <div class="modal-overlay hidden" id="detail-modal-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-modal-title">
-        <div class="modal-card" id="detail-modal">
-          <div class="modal-header">
-            <h3 class="modal-title" id="detail-modal-title">Candidate Details</h3>
-            <button class="modal-close" id="modal-close" aria-label="Close modal">✕</button>
+    <!-- ── VIEW: Dashboard ─────────────────────────────────────────────── -->
+    <section id="view-dashboard" class="view">
+      <div class="page-card">
+        <div class="page-card__header">
+          <h2 class="page-title">Dashboard</h2>
+          <p class="page-desc">Aggregate metrics across all candidate submissions.</p>
+        </div>
+        <div class="dashboard-row">
+          <div class="kpi-card">
+            <div class="kpi-icon">📋</div>
+            <div class="kpi-value" id="dash-total">0</div>
+            <div class="kpi-label">Total Submissions</div>
           </div>
-          <div class="modal-body" id="detail-modal-body"></div>
-          <div class="modal-footer">
-            <button class="btn btn-primary btn-sm" id="modal-close-btn">Close</button>
+          <div class="kpi-card kpi-card--success">
+            <div class="kpi-icon">✅</div>
+            <div class="kpi-value" id="dash-cleared">0</div>
+            <div class="kpi-label">Cleared</div>
+          </div>
+          <div class="kpi-card kpi-card--accent">
+            <div class="kpi-icon">⏳</div>
+            <div class="kpi-value" id="dash-waitlisted">0</div>
+            <div class="kpi-label">Waitlisted</div>
+          </div>
+        </div>
+        <div class="dashboard-row">
+          <div class="kpi-card kpi-card--warning">
+            <div class="kpi-icon">⚡</div>
+            <div class="kpi-value" id="dash-with-ex">0</div>
+            <div class="kpi-label">With Exceptions</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon">📊</div>
+            <div class="kpi-value" id="dash-rate">0.0%</div>
+            <div class="kpi-label">Exception Rate</div>
+          </div>
+          <div class="kpi-card kpi-card--danger">
+            <div class="kpi-icon">🚩</div>
+            <div class="kpi-value" id="dash-flagged">0</div>
+            <div class="kpi-label">Flagged for Review</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ───────────────────────────────────
-         VIEW 3: DASHBOARD
-    ─────────────────────────────────────── -->
-    <section id="view-dashboard" class="view hidden" aria-label="Dashboard">
+    <!-- ── VIEW: Configure Rules ───────────────────────────────────────── -->
+    <section id="view-config" class="view">
       <div class="page-card">
-        <div class="page-card-header">
-          <div>
-            <h2 class="page-title">Dashboard</h2>
-            <p class="page-subtitle">Operational overview of all candidate submissions</p>
-          </div>
-          <button class="btn btn-ghost btn-sm" id="btn-refresh-dashboard">🔄 Refresh</button>
+        <div class="page-card__header">
+          <h2 class="page-title">⚙ Configure Rules &amp; Storage</h2>
+          <p class="page-desc">Adjust eligibility thresholds, pass marks, and allowed values. Changes apply to new entries immediately after saving.</p>
         </div>
 
-        <!-- KPI Cards -->
-        <div class="kpi-grid" id="kpi-grid">
-          <div class="kpi-card" id="kpi-total">
-            <span class="kpi-icon">👥</span>
-            <div class="kpi-value" id="kpi-total-value">0</div>
-            <div class="kpi-label">Total Submissions</div>
+        <!-- Storage panel -->
+        <div class="config-storage-panel">
+          <div class="config-storage-header">
+            <div class="config-storage-title">📁 Local Folder Storage</div>
+            <div class="config-storage-desc">By default data is saved in browser localStorage. Pick a local folder to persist data as a JSON file on your machine.</div>
           </div>
-          <div class="kpi-card kpi-card-accent" id="kpi-exceptions">
-            <span class="kpi-icon">⚠️</span>
-            <div class="kpi-value" id="kpi-exceptions-value">0</div>
-            <div class="kpi-label">With Exceptions</div>
-          </div>
-          <div class="kpi-card" id="kpi-rate">
-            <span class="kpi-icon">📊</span>
-            <div class="kpi-value" id="kpi-rate-value">0%</div>
-            <div class="kpi-label">Exception Rate</div>
-          </div>
-          <div class="kpi-card kpi-card-danger" id="kpi-flagged">
-            <span class="kpi-icon">🚩</span>
-            <div class="kpi-value" id="kpi-flagged-value">0</div>
-            <div class="kpi-label">Flagged for Review</div>
+          <div class="config-storage-row">
+            <div id="storage-status-msg" class="storage-status-msg"></div>
+            <div class="config-storage-btns">
+              <button id="btn-pick-folder"  class="btn btn--primary btn--sm">📂 Choose Folder…</button>
+              <button id="btn-clear-folder" class="btn btn--ghost   btn--sm">✕ Use Browser Storage</button>
+            </div>
           </div>
         </div>
 
-        <!-- Flagged Entries Quick View -->
-        <div class="dashboard-section" id="flagged-section">
-          <h3 class="dashboard-section-title">🚩 Flagged Entries Requiring Manager Review</h3>
-          <div id="flagged-list" class="flagged-list">
-            <p class="empty-state-inline">No flagged entries at this time.</p>
-          </div>
+        <!-- Rules body -->
+        <div id="config-rules-body" class="config-rules-body"></div>
+
+        <!-- Actions footer -->
+        <div id="config-actions" class="config-actions">
+          <button id="btn-export-rules" class="btn btn--secondary">⬇ Export rules.json</button>
+          <div style="flex:1"></div>
+          <button id="btn-reset-rules"  class="btn btn--ghost">↺ Reset to Defaults</button>
+          <button id="btn-save-rules"   class="btn btn--primary">💾 Save Rules</button>
         </div>
       </div>
     </section>
 
   </main>
 
-  <!-- Footer -->
-  <footer class="app-footer">
-    <span>AdmitGuard &copy; 2026 — Futurense Technologies</span>
-    <span class="footer-version">v1.0.0 — Sprint 1</span>
-  </footer>
-
-  <!-- JS -->
-  <script src="app.js"></script>
-  <script src="validator.js"></script>
-  <script src="storage.js"></script>
-
+  <script src="./storage.js"></script>
+  <script src="./validator.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
