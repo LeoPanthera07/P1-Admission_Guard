@@ -1,0 +1,72 @@
+[
+  {
+    "fullName": "ajay patel",
+    "email": "ajay@ap.in",
+    "phone": "9998991215",
+    "dateOfBirth": "2004-04-13",
+    "highestQualification": "B.Tech",
+    "graduationYear": "2021",
+    "percentageOrCgpa": "6.9",
+    "screeningTestScore": "53",
+    "interviewStatus": "Cleared",
+    "aadhaarNumber": "999914440023",
+    "offerLetterSent": "Yes",
+    "exceptionCount": 0,
+    "flaggedForManager": false,
+    "exceptions": {},
+    "createdAt": "2026-02-28T01:21:09.022Z",
+    "id": "AG-1772163143058",
+    "updatedAt": "2026-02-28T01:21:09.037Z",
+    "percentageMode": "cgpa"
+  },
+  {
+    "fullName": "Harsh Baniya",
+    "email": "harshbaniya@delhi.com",
+    "phone": "9898251298",
+    "dateOfBirth": "2000-12-12",
+    "highestQualification": "B.Tech",
+    "graduationYear": "2023",
+    "percentageOrCgpa": "7",
+    "screeningTestScore": "60",
+    "interviewStatus": "Waitlisted",
+    "aadhaarNumber": "121245869599",
+    "offerLetterSent": "No",
+    "percentageMode": "cgpa",
+    "exceptionCount": 0,
+    "flaggedForManager": false,
+    "exceptions": {},
+    "createdAt": "2026-02-27T16:07:28.620Z",
+    "id": "AG-1772167150699",
+    "updatedAt": "2026-02-27T16:07:28.620Z"
+  },
+  {
+    "percentageMode": "cgpa",
+    "fullName": "Darshan Brahmabhatta",
+    "email": "db.abd@baps.org",
+    "phone": "9898254298",
+    "dateOfBirth": "1989-12-20",
+    "highestQualification": "M.Sc",
+    "graduationYear": "2012",
+    "percentageOrCgpa": "5.5",
+    "screeningTestScore": "80",
+    "interviewStatus": "Waitlisted",
+    "aadhaarNumber": "111111111111",
+    "offerLetterSent": "No",
+    "exceptionCount": 3,
+    "flaggedForManager": true,
+    "exceptions": {
+      "dateOfBirth": {
+        "rationale": "Approved by Sam Altman to do this course"
+      },
+      "graduationYear": {
+        "rationale": "Approved by Sam Altman to do this course"
+      },
+      "percentageOrCgpa": {
+        "rationale": "Approved by Sam Altman to do this course"
+      }
+    },
+    "createdAt": "2026-02-28T02:18:18.477Z",
+    "id": "AG-1772215821447",
+    "updatedAt": "2026-02-28T02:18:18.478Z"
+  }
+]

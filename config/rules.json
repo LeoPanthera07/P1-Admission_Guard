@@ -1,0 +1,211 @@
+{
+  "schemaVersion": "1.0.0",
+  "programStartDate": "2026-07-01",
+  "softRuleKeywords": [
+    "approved by",
+    "special case",
+    "documentation pending",
+    "waiver granted"
+  ],
+  "systemRules": {
+    "maxSoftExceptions": 2,
+    "rationaleMinLength": 30
+  },
+  "fields": {
+    "fullName": {
+      "label": "Full Name",
+      "type": "text",
+      "ruleType": "strict",
+      "order": 1,
+      "validations": {
+        "required": true,
+        "minLength": 2,
+        "pattern": "^[A-Za-z ]+$"
+      },
+      "messages": {
+        "required": "Full name is required.",
+        "minLength": "Full name must be at least 2 characters long.",
+        "pattern": "Full name must contain letters and spaces only — no numbers or special characters."
+      }
+    },
+    "email": {
+      "label": "Email Address",
+      "type": "text",
+      "ruleType": "strict",
+      "order": 2,
+      "validations": {
+        "required": true,
+        "unique": true,
+        "pattern": "^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$"
+      },
+      "messages": {
+        "required": "Email address is required.",
+        "pattern": "Please enter a valid email address (e.g. name@domain.com).",
+        "unique": "This email is already registered. Each candidate must have a unique email."
+      }
+    },
+    "phone": {
+      "label": "Phone Number",
+      "type": "text",
+      "ruleType": "strict",
+      "order": 3,
+      "validations": {
+        "required": true,
+        "pattern": "^[6-9][0-9]{9}$"
+      },
+      "messages": {
+        "required": "Phone number is required.",
+        "pattern": "Phone must be a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9."
+      }
+    },
+    "dateOfBirth": {
+      "label": "Date of Birth",
+      "type": "date",
+      "ruleType": "soft",
+      "order": 4,
+      "validations": {
+        "required": true,
+        "ageMin": 18,
+        "ageMax": 35
+      },
+      "messages": {
+        "required": "Date of birth is required.",
+        "ageMin": "Candidate must be at least 18 years old on program start date (Jul 1, 2026).",
+        "ageMax": "Candidate must be 35 years old or younger on program start date (Jul 1, 2026)."
+      },
+      "exceptionAllowed": true,
+      "softWarning": "This candidate age does not meet the standard criteria (18-35 years)."
+    },
+    "highestQualification": {
+      "label": "Highest Qualification",
+      "type": "select",
+      "ruleType": "strict",
+      "order": 5,
+      "validations": {
+        "required": true,
+        "enum": ["B.Tech", "B.E.", "B.Sc", "BCA", "M.Tech", "M.Sc", "MCA", "MBA"]
+      },
+      "messages": {
+        "required": "Please select a qualification.",
+        "enum": "Qualification must be one of: B.Tech, B.E., B.Sc, BCA, M.Tech, M.Sc, MCA, MBA."
+      }
+    },
+    "graduationYear": {
+      "label": "Graduation Year",
+      "type": "number",
+      "ruleType": "soft",
+      "order": 6,
+      "validations": {
+        "required": true,
+        "min": 2015,
+        "max": 2025
+      },
+      "messages": {
+        "required": "Graduation year is required.",
+        "min": "Graduation year must be 2015 or later.",
+        "max": "Graduation year must be 2025 or earlier."
+      },
+      "exceptionAllowed": true,
+      "softWarning": "Graduation year is outside the accepted range (2015-2025)."
+    },
+    "percentageOrCgpa": {
+      "label": "Percentage / CGPA",
+      "type": "percentageCgpa",
+      "ruleType": "soft",
+      "order": 7,
+      "validations": {
+        "required": true,
+
+        "modes": {
+          "percentage": { "threshold": 60 },
+          "cgpa": { "threshold": 6.0, "max": 10.0 }
+        },
+
+        "percentageMin": 60,
+        "cgpaMin": 6.0,
+        "cgpaMax": 10.0
+      },
+      "messages": {
+        "required": "Percentage or CGPA is required.",
+        "percentageMin": "Percentage must be at least 60%.",
+        "cgpaMin": "CGPA must be at least 6.0 on a 10-point scale.",
+        "cgpaMax": "CGPA cannot exceed 10.0 on a 10-point scale."
+      },
+      "exceptionAllowed": true,
+      "softWarning": "Candidate does not meet the minimum academic score criteria."
+    },
+    "screeningTestScore": {
+      "label": "Screening Test Score",
+      "type": "number",
+      "ruleType": "soft",
+      "order": 8,
+      "validations": {
+        "required": true,
+        "min": 0,
+        "max": 100,
+
+        "threshold": 40,
+        "passMark": 40
+      },
+      "messages": {
+        "required": "Screening test score is required.",
+        "min": "Score cannot be negative.",
+        "max": "Score cannot exceed 100.",
+        "passMark": "Screening test score must be at least 40 out of 100."
+      },
+      "exceptionAllowed": true,
+      "softWarning": "Screening test score is below the passing threshold of 40."
+    },
+    "interviewStatus": {
+      "label": "Interview Status",
+      "type": "select",
+      "ruleType": "strict",
+      "order": 9,
+      "validations": {
+        "required": true,
+        "enum": ["Cleared", "Waitlisted", "Rejected"],
+        "blockedValues": ["Rejected"]
+      },
+      "messages": {
+        "required": "Interview status is required.",
+        "enum": "Interview status must be: Cleared, Waitlisted, or Rejected.",
+        "blockedValues": "Rejected candidates cannot be enrolled. Submission blocked."
+      }
+    },
+    "aadhaarNumber": {
+      "label": "Aadhaar Number",
+      "type": "text",
+      "ruleType": "strict",
+      "order": 10,
+      "validations": {
+        "required": true,
+        "pattern": "^[0-9]{12}$"
+      },
+      "messages": {
+        "required": "Aadhaar number is required.",
+        "pattern": "Aadhaar must be exactly 12 digits — no letters or special characters."
+      }
+    },
+    "offerLetterSent": {
+      "label": "Offer Letter Sent",
+      "type": "select",
+      "ruleType": "strict",
+      "order": 11,
+      "validations": {
+        "required": true,
+        "enum": ["Yes", "No"],
+        "crossField": {
+          "dependsOn": "interviewStatus",
+          "triggerValue": "Yes",
+          "allowedWhen": ["Cleared", "Waitlisted"],
+          "message": "Offer letter can only be sent when Interview Status is Cleared or Waitlisted."
+        }
+      },
+      "messages": {
+        "required": "Please specify whether an offer letter has been sent.",
+        "enum": "Offer letter status must be Yes or No.",
+        "crossField": "Offer letter can only be sent when Interview Status is Cleared or Waitlisted."
+      }
+    }
+  }
+}

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdmitGuard - Admission Validation</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <header class="app-header">
+    <div class="brand">
+      <svg class="brand-logo" viewBox="0 0 40 44" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M20 2L4 9v12c0 10.5 6.8 20.3 16 23 9.2-2.7 16-12.5 16-23V9L20 2z" fill="url(#shield-grad)" stroke="rgba(255,255,255,.15)" stroke-width="1"/>
+        <path d="M13 22l5 5 9-10" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <defs>
+          <linearGradient id="shield-grad" x1="4" y1="2" x2="36" y2="44" gradientUnits="userSpaceOnUse">
+            <stop offset="0" stop-color="#818cf8"/>
+            <stop offset="1" stop-color="#4f46e5"/>
+          </linearGradient>
+        </defs>
+      </svg>
+      <div class="brand-text">
+        <span class="brand-name">AdmitGuard</span>
+        <span class="brand-tagline">Futurense Admission Validations</span>
+      </div>
+    </div>
+
+    <div class="brand-divider"></div>
+
+    <nav class="header-nav" aria-label="Main navigation">
+      <button class="nav-btn nav-active" data-nav="form" type="button" title="New Candidate">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="3"></rect>
+          <line x1="9" y1="9" x2="15" y2="9"></line>
+          <line x1="9" y1="13" x2="15" y2="13"></line>
+          <line x1="9" y1="17" x2="13" y2="17"></line>
+        </svg>
+        New Candidate
+      </button>
+
+      <button class="nav-btn" data-nav="audit" type="button" title="Audit Log">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14,2 14,8 20,8"></polyline>
+          <line x1="8" y1="13" x2="16" y2="13"></line>
+          <line x1="8" y1="17" x2="16" y2="17"></line>
+        </svg>
+        Audit Log
+      </button>
+
+      <button class="nav-btn" data-nav="dashboard" type="button" title="Dashboard">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <rect x="3" y="13" width="4" height="8"></rect>
+          <rect x="10" y="9" width="4" height="12"></rect>
+          <rect x="17" y="5" width="4" height="16"></rect>
+        </svg>
+        Dashboard
+      </button>
+
+      <button class="nav-btn" data-nav="config" type="button" title="Configure Rules">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        Configure Rules
+      </button>
+    </nav>
+
+    <div class="header-right">
+      <span id="storage-badge" class="storage-badge storage-badge--default" title="Data stored in browser localStorage">Browser Storage</span>
+      <button id="theme-toggle" class="storage-badge storage-badge--default theme-toggle-btn" type="button" title="Toggle theme">Dark</button>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- Form -->
+    <section id="view-form" class="view active">
+      <div class="form-card">
+        <div class="form-cardheader">
+          <h1 class="form-title">New Candidate Entry</h1>
+          <p class="form-subtitle">
+            Fields marked <span class="required-mark">*</span> are required.
+            <span class="badge-legend">
+              <span class="rule-badge rule-badge--strict">Strict</span> no override&nbsp;&nbsp;
+              <span class="rule-badge rule-badge--soft">Soft</span> exception allowed
+            </span>
+          </p>
+        </div>
+
+        <div id="editing-banner" class="alert alert--info" style="display:none"></div>
+        <div id="rejected-banner" class="alert alert--danger" style="display:none" role="alert" aria-live="assertive"></div>
+        <div id="form-error-banner" class="alert alert--danger" style="display:none" role="alert" aria-live="polite"></div>
+
+        <form id="candidate-form" novalidate>
+          <div id="candidate-form-fields" class="form-fields-grid"></div>
+
+          <div id="exception-counter" class="exception-counter" style="display:none">
+            Active exceptions <strong id="exception-count-val">0</strong>
+            <span class="exception-max-label">2 max before flagging</span>
+          </div>
+
+          <div id="flagged-banner" class="alert alert--warning" style="display:none" role="alert"></div>
+
+          <div class="form-actions">
+            <button type="button" id="reset-btn" class="btn btn--ghost">Reset Form</button>
+            <button type="submit" id="submit-btn" class="btn btn--primary" disabled>Save Candidate</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Success -->
+    <section id="view-success" class="view">
+      <div class="success-card">
+        <div class="success-icon" aria-hidden="true"></div>
+        <h2 class="success-title">Candidate Saved!</h2>
+        <p class="success-desc">The record has been added to the audit log.</p>
+
+        <div id="success-summary"></div>
+
+        <div class="success-actions">
+          <button id="new-candidate-btn" class="btn btn--primary" type="button">New Candidate</button>
+          <button id="go-audit-btn" class="btn btn--secondary" type="button">View Audit Log</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audit -->
+    <section id="view-audit" class="view">
+      <div class="page-card">
+        <div class="page-cardheader">
+          <div class="page-header-row">
+            <div>
+              <h2 class="page-title">Audit Log</h2>
+              <p class="page-desc">All candidate submissions. Click an entry to view. Use Edit/Delete for actions.</p>
+            </div>
+            <div class="export-btns">
+              <button id="btn-export-csv" class="btn btn--secondary btn--sm" type="button">CSV</button>
+              <button id="btn-export-json" class="btn btn--secondary btn--sm" type="button">JSON</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="audit-controls">
+          <input type="text" id="audit-search" class="audit-search" placeholder="Search by name or email" />
+          <select id="filter-status" class="filter-select">
+            <option value="">All Statuses</option>
+            <option value="Cleared">Cleared</option>
+            <option value="Waitlisted">Waitlisted</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+          <select id="filter-flagged" class="filter-select">
+            <option value="">All Entries</option>
+            <option value="yes">Flagged only</option>
+            <option value="no">Not flagged</option>
+          </select>
+          <select id="filter-exceptions" class="filter-select">
+            <option value="">Any Exceptions</option>
+            <option value="yes">Has exceptions</option>
+            <option value="no">No exceptions</option>
+          </select>
+          <span class="audit-count" id="audit-count">0 records</span>
+        </div>
+
+        <div class="table-wrapper">
+          <table id="audit-table" class="data-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Submitted</th>
+                <th>Exceptions</th>
+                <th>Flagged</th>
+                <th>Interview</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="8" class="empty-state">No submissions yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detail (Read-only) -->
+    <section id="view-detail" class="view">
+      <div class="page-card">
+        <div class="page-cardheader">
+          <div class="page-header-row">
+            <div>
+              <h2 class="page-title">Candidate Details</h2>
+              <p class="page-desc" id="detail-subtitle"></p>
+            </div>
+            <div class="export-btns">
+              <button id="detail-back-btn" class="btn btn--ghost" type="button">Back</button>
+              <button id="detail-edit-btn" class="btn btn--secondary btn--sm" type="button">Edit</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="detail-flag-banner" class="alert alert--warning" style="display:none" role="alert"></div>
+
+        <div style="padding: 18px var(--pad-x) 28px;">
+          <div id="detail-body"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="view-dashboard" class="view">
+      <div class="page-card">
+        <div class="page-cardheader">
+          <h2 class="page-title">Dashboard</h2>
+          <p class="page-desc">Aggregate metrics across all candidate submissions.</p>
+        </div>
+
+        <div class="dashboard-row">
+          <div class="kpi-card">
+            <div class="kpi-icon" aria-hidden="true"></div>
+            <div class="kpi-value" id="dash-total">0</div>
+            <div class="kpi-label">Total Submissions</div>
+          </div>
+          <div class="kpi-card kpi-card--success">
+            <div class="kpi-icon" aria-hidden="true"></div>
+            <div class="kpi-value" id="dash-cleared">0</div>
+            <div class="kpi-label">Cleared</div>
+          </div>
+          <div class="kpi-card kpi-card--accent">
+            <div class="kpi-icon" aria-hidden="true"></div>
+            <div class="kpi-value" id="dash-waitlisted">0</div>
+            <div class="kpi-label">Waitlisted</div>
+          </div>
+        </div>
+
+        <div class="dashboard-row">
+          <div class="kpi-card kpi-card--warning">
+            <div class="kpi-icon" aria-hidden="true"></div>
+            <div class="kpi-value" id="dash-with-ex">0</div>
+            <div class="kpi-label">With Exceptions</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-icon" aria-hidden="true"></div>
+            <div class="kpi-value" id="dash-rate">0.0</div>
+            <div class="kpi-label">Exception Rate</div>
+          </div>
+          <div class="kpi-card kpi-card--danger">
+            <div class="kpi-icon" aria-hidden="true"></div>
+            <div class="kpi-value" id="dash-flagged">0</div>
+            <div class="kpi-label">Flagged for Review</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Configure Rules -->
+    <section id="view-config" class="view">
+      <div class="page-card">
+        <div class="page-cardheader">
+          <h2 class="page-title">Configure Rules &amp; Storage</h2>
+          <p class="page-desc">Adjust eligibility thresholds, pass marks, and allowed values. Save rules to apply to new entries.</p>
+        </div>
+
+        <div class="config-storage-panel">
+          <div class="config-storage-header">
+            <div class="config-storage-title">Local Folder Storage</div>
+            <div class="config-storage-desc">Pick a local folder to persist data as a JSON file on your machine instead of browser storage.</div>
+          </div>
+
+          <div class="config-storage-row">
+            <div id="storage-status-msg" class="storage-status-msg"></div>
+            <div class="config-storage-btns">
+              <button id="btn-pick-folder" class="btn btn--primary btn--sm" type="button">Choose Folder</button>
+              <button id="btn-clear-folder" class="btn btn--ghost btn--sm" type="button">Use Browser Storage</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="config-rules-body" class="config-rules-body"></div>
+
+        <div id="config-actions" class="config-actions">
+          <button id="btn-export-rules" class="btn btn--secondary" type="button">Export rules.json</button>
+          <div style="flex:1"></div>
+          <button id="btn-reset-rules" class="btn btn--ghost" type="button">Reset to Defaults</button>
+          <button id="btn-save-rules" class="btn btn--primary" type="button">Save Rules</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="./storage.js"></script>
+  <script src="./validator.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
