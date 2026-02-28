@@ -26,6 +26,10 @@ function asTrimmedString(v) {
   return (v === undefined || v === null) ? '' : String(v).trim();
 }
 
+function normalizeUniqueValue(v) {
+  return asTrimmedString(v).replace(/[\s-]/g, '').toLowerCase();
+}
+
 function toNumber(v) {
   if (v === undefined || v === null || v === '') return NaN;
   var n = parseFloat(String(v));
@@ -113,13 +117,16 @@ function validateField(fieldName, value, formState, config, existingSubs) {
   // unique (generic)
   if (v.unique && existingSubs && msgs.length === 0) {
     var currentId = formState ? formState.editingId : null;
-    var sLower = trimmed.toLowerCase();
+    var sLower = normalizeUniqueValue(trimmed);
 
     var isDuplicate = existingSubs.some(function (sub) {
       if (!sub) return false;
-      var subVal = (sub[fieldName] !== undefined && sub[fieldName] !== null) ? String(sub[fieldName]) : (sub.email ? String(sub.email) : '');
-      return subVal.toLowerCase() === sLower && sub.id !== currentId;
+      var subVal = (sub[fieldName] !== undefined && sub[fieldName] !== null)
+        ? String(sub[fieldName])
+        : sub.email; // existing fallback
+      return normalizeUniqueValue(subVal) === sLower && sub.id !== currentId;
     });
+
 
     if (isDuplicate) msgs.push(m.unique || 'Value already exists.');
   }
