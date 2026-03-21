@@ -28,6 +28,13 @@
       "order": 3,
       "validations": { "required": true }
     },
+    "universityName": {
+      "label": "University / Board Name",
+      "type": "autocomplete",
+      "ruleType": "strict",
+      "order": 4,
+      "validations": { "required": true }
+    },
     "pathTaken": {
       "label": "Educational Path",
       "type": "select",

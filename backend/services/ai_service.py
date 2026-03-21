@@ -7,14 +7,21 @@ try:
 except Exception as e:
     print(f"Gemini init error: {e}")
 
-def get_ai_risk_score(payload: dict) -> float:
+import json
+
+def get_university_suggestions(query: str) -> list[str]:
     """ 
-    Calls Gemini API to evaluate unstructured data or complex patterns in the application 
-    and returns a normalized risk score from 0.0 to 1.0.
+    Calls Gemini API to suggest university or board names matching a partial query.
     """
     if not settings.GEMINI_API_KEY:
-        # Development fallback
-        return len(payload.get("flagReason", [])) * 0.1
+        return [f"{query} University", f"{query} Institute of Technology"]
         
-    # Placeholder for actual Gemini prompt/response logic
-    return 0.0
+    model = genai.GenerativeModel('gemini-1.5-flash')
+    prompt = f"Suggest 5 real university or board names that match the partial input '{query}'. Return ONLY a JSON list of strings, no markdown blocks."
+    try:
+        response = model.generate_content(prompt)
+        text = response.text.strip().replace("```json", "").replace("```", "")
+        return json.loads(text)
+    except Exception as e:
+        print(f"Gemini generate error: {e}")
+        return [f"{query} University", f"{query} Institute"]

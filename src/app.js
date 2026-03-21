@@ -505,6 +505,8 @@ function buildFieldGroup(fieldName, cfg) {
   group.appendChild(label);
 
   if (cfg.type === 'percentageCgpa') group.appendChild(buildPercentageCgpaWidget(fieldName));
+  else if (cfg.type === 'repeater') group.appendChild(buildRepeaterWidget(fieldName, cfg));
+  else if (cfg.type === 'autocomplete') group.appendChild(buildAutocompleteWidget(fieldName, cfg));
   else group.appendChild(buildInput(fieldName, cfg));
 
   var errSpan = el('span', 'field-error');
@@ -612,6 +614,142 @@ function buildPercentageCgpaWidget(fieldName) {
   modeRow.appendChild(cBtn);
   wrapper.appendChild(modeRow);
   wrapper.appendChild(input);
+  return wrapper;
+}
+
+function buildRepeaterWidget(fieldName, cfg) {
+  var wrapper = document.createElement('div');
+  wrapper.className = 'repeater-wrapper';
+  var listContainer = document.createElement('div');
+  listContainer.className = 'repeater-list';
+  var addBtn = document.createElement('button');
+  addBtn.className = 'btn btn--ghost btn--sm';
+  addBtn.style.marginTop = '10px';
+  addBtn.textContent = '+ Add Job Experience';
+  addBtn.type = 'button';
+
+  if (!Array.isArray(FORMSTATE[fieldName])) FORMSTATE[fieldName] = [];
+
+  function renderRows() {
+    listContainer.innerHTML = '';
+    var arr = FORMSTATE[fieldName];
+    arr.forEach(function(item, idx) {
+      var row = document.createElement('div');
+      row.className = 'repeater-row form-fields-grid';
+      row.style.marginBottom = '10px';
+      row.innerHTML = 
+        '<input type="text" placeholder="Company Name" class="form-input" value="' + escHtml(item.company || '') + '" data-idx="' + idx + '" data-sub="company" />' +
+        '<input type="date" title="Start Date" class="form-input" value="' + escHtml(item.startDate || '') + '" data-idx="' + idx + '" data-sub="startDate" />' +
+        '<input type="date" title="End Date (Blank = Present)" class="form-input" value="' + escHtml(item.endDate || '') + '" data-idx="' + idx + '" data-sub="endDate" />' +
+        '<button type="button" class="btn btn--danger mix-btn-delete" style="padding: 10px;" data-idx="' + idx + '">Del</button>';
+      listContainer.appendChild(row);
+    });
+
+    listContainer.querySelectorAll('input').forEach(function(inp) {
+      inp.addEventListener('input', function(e) {
+        var ix = parseInt(e.target.getAttribute('data-idx'));
+        var sub = e.target.getAttribute('data-sub');
+        FORMSTATE[fieldName][ix][sub] = e.target.value;
+      });
+    });
+
+    listContainer.querySelectorAll('.mix-btn-delete').forEach(function(b) {
+      b.addEventListener('click', function(e) {
+        var ix = parseInt(e.target.getAttribute('data-idx'));
+        FORMSTATE[fieldName].splice(ix, 1);
+        renderRows();
+      });
+    });
+  }
+
+  addBtn.addEventListener('click', function() {
+    FORMSTATE[fieldName].push({ company: '', startDate: '', endDate: '' });
+    renderRows();
+  });
+
+  renderRows();
+  wrapper.appendChild(listContainer);
+  wrapper.appendChild(addBtn);
+  return wrapper;
+}
+
+function buildAutocompleteWidget(fieldName, cfg) {
+  var wrapper = document.createElement('div');
+  wrapper.className = 'autocomplete-wrapper';
+  wrapper.style.position = 'relative';
+
+  var elInput = document.createElement('input');
+  elInput.type = 'text';
+  elInput.className = 'form-input';
+  elInput.placeholder = cfg.label || fieldName;
+  elInput.id = fieldName;
+  if (FORMSTATE[fieldName]) elInput.value = FORMSTATE[fieldName];
+
+  var suggestions = document.createElement('ul');
+  suggestions.className = 'autocomplete-list';
+  suggestions.style.display = 'none';
+  suggestions.style.position = 'absolute';
+  suggestions.style.zIndex = '100';
+  suggestions.style.background = 'var(--surface)';
+  suggestions.style.border = '1px solid var(--border)';
+  suggestions.style.width = '100%';
+  suggestions.style.listStyle = 'none';
+  suggestions.style.padding = '0';
+  suggestions.style.margin = '4px 0 0 0';
+  suggestions.style.marginTop = '4px';
+  suggestions.style.maxHeight = '150px';
+  suggestions.style.overflowY = 'auto';
+  suggestions.style.borderRadius = 'var(--radius)';
+  suggestions.style.boxShadow = 'var(--shadow-md)';
+
+  wrapper.appendChild(elInput);
+  wrapper.appendChild(suggestions);
+
+  attachListeners(elInput, fieldName);
+
+  var debounceTimer;
+  elInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    var val = elInput.value;
+    if (val.length < 3) { suggestions.style.display = 'none'; return; }
+    debounceTimer = setTimeout(async function() {
+      try {
+        var suggestUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+          ? 'http://localhost:8000/suggest?query=' : '/suggest?query=';
+        var res = await fetch(suggestUrl + encodeURIComponent(val));
+        var data = await res.json();
+        if (data && data.suggestions && data.suggestions.length) {
+          suggestions.innerHTML = data.suggestions.map(function(s) {
+            return '<li class="autocomplete-item" tabindex="0">' + escHtml(s) + '</li>';
+          }).join('');
+          suggestions.style.display = 'block';
+          suggestions.querySelectorAll('li').forEach(function(li) {
+            li.addEventListener('click', function() {
+              elInput.value = li.textContent;
+              FORMSTATE[fieldName] = elInput.value;
+              suggestions.style.display = 'none';
+              runValidation(fieldName, elInput.value);
+            });
+            li.addEventListener('keydown', function(e) {
+                if(e.key === 'Enter') {
+                  elInput.value = li.textContent;
+                  FORMSTATE[fieldName] = elInput.value;
+                  suggestions.style.display = 'none';
+                  runValidation(fieldName, elInput.value);
+                }
+            })
+          });
+        } else {
+          suggestions.style.display = 'none';
+        }
+      } catch (e) { suggestions.style.display = 'none'; }
+    }, 500);
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!wrapper.contains(e.target)) suggestions.style.display = 'none';
+  });
+
   return wrapper;
 }
 
@@ -774,6 +912,24 @@ function attachListeners(elInput, fieldName) {
   function handle() {
     FORMSTATE[fieldName] = elInput.value;
     runValidation(fieldName, elInput.value);
+
+    // Dynamic visibility for Path Taken
+    if (fieldName === 'pathTaken') {
+      var val = elInput.value;
+      var g12d = document.getElementById('group-twelfthCompletionDate');
+      var g12s = document.getElementById('group-twelfthScore');
+      var gDd = document.getElementById('group-diplomaCompletionDate');
+      var gDs = document.getElementById('group-diplomaScore');
+      var gId = document.getElementById('group-itiCompletionDate');
+      var gIs = document.getElementById('group-itiScore');
+
+      if (g12d) g12d.style.display = (val === 'A') ? 'block' : 'none';
+      if (g12s) g12s.style.display = (val === 'A') ? 'block' : 'none';
+      if (gDd) gDd.style.display = (val === 'B' || val === 'C') ? 'block' : 'none';
+      if (gDs) gDs.style.display = (val === 'B' || val === 'C') ? 'block' : 'none';
+      if (gId) gId.style.display = (val === 'C') ? 'block' : 'none';
+      if (gIs) gIs.style.display = (val === 'C') ? 'block' : 'none';
+    }
 
     if (fieldName === 'interviewStatus') renderRejectedBanner(elInput.value);
 
@@ -1028,11 +1184,14 @@ async function handleSubmit(e) {
   record.exceptions = exceptionData;
   record.createdAt = new Date().toISOString();
 
-  var editingId = FORMSTATE.editingId;
-  var saved;
+  var subBtn = document.getElementById('submit-btn');
+  var origText = subBtn ? subBtn.textContent : '';
+  if (subBtn) { subBtn.disabled = true; subBtn.textContent = 'Processing ...'; }
 
   try {
-    var res = await fetch('http://localhost:8000/apply', {
+    var apiUrl = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:8000/apply' : '/apply';
+    var res = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(record)
@@ -1046,6 +1205,7 @@ async function handleSubmit(e) {
        }
        var formTop = document.getElementById('candidate-form-fields');
        if (formTop) formTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+       if (subBtn) { subBtn.disabled = false; subBtn.textContent = origText; }
        return;
     }
     record = Object.assign(record, data.data || {});
@@ -1054,6 +1214,7 @@ async function handleSubmit(e) {
       banner.innerHTML = '<strong>Network Error</strong><br/>Could not reach backend API at http://localhost:8000';
       banner.style.display = 'block';
     }
+    if (subBtn) { subBtn.disabled = false; subBtn.textContent = origText; }
     return;
   }
 
@@ -1065,6 +1226,7 @@ async function handleSubmit(e) {
     showToast('Saved: ' + (saved.fullName || '') + ' (' + saved.id + ')', 'success');
   }
 
+  if (subBtn) { subBtn.disabled = false; subBtn.textContent = origText; }
   SUBS = getSubmissions();
   showSuccessScreen(saved);
 }
@@ -1096,12 +1258,16 @@ function showSuccessScreen(record) {
     ? '<div class="success-flag-banner">Flagged for manager review • ' + escHtml(String(record.exceptionCount || 0)) + ' exceptions granted</div>'
     : '';
 
+  var riskColor = record.riskCategory === 'High' ? 'var(--danger)' : (record.riskCategory === 'Medium' ? 'var(--warning)' : 'var(--success)');
+  var riskHtml = '<div style="margin-top: 15px; padding: 10px; border-radius: 4px; background: ' + riskColor + '; color: white; text-align: center; font-weight: bold;">Risk Category: ' + escHtml(record.riskCategory || 'Low') + '</div>';
+
   sumEl.innerHTML =
     '<table class="summary-table">' +
       '<thead><tr><th>Field</th><th>Value</th></tr></thead>' +
       '<tbody>' + rows + '</tbody>' +
     '</table>' +
     flagHtml +
+    riskHtml +
     '<p class="summary-meta">ID <strong>' + escHtml(record.id) + '</strong> • ' +
       escHtml(new Date(record.createdAt).toLocaleString('en-IN')) +
     '</p>';
