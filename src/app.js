@@ -905,7 +905,7 @@ function syncSubmitButton() {
   var res = window.validateForm(FORMSTATE, CONFIG, SUBS);
 
   var blocked = getBlockedInterviewValue();
-  var isBlocked = blocked && String(FORMSTATE.interviewStatus) === blocked;
+  var isBlocked = blocked && String(FORMSTATE.pathTaken) === blocked;
 
   if (!res.isFormValid || isBlocked) {
     btn.disabled = true;
@@ -949,7 +949,7 @@ async function handleSubmit(e) {
   var banner = document.getElementById('form-error-banner');
 
   var blocked = getBlockedInterviewValue();
-  var isBlocked = blocked && String(FORMSTATE.interviewStatus) === blocked;
+  var isBlocked = blocked && String(FORMSTATE.pathTaken) === blocked;
 
   if (!res.isFormValid || isBlocked) {
     if (banner) {
@@ -1030,6 +1030,32 @@ async function handleSubmit(e) {
 
   var editingId = FORMSTATE.editingId;
   var saved;
+
+  try {
+    var res = await fetch('http://localhost:8000/apply', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(record)
+    });
+    var data = await res.json();
+    if (!res.ok) {
+       var errMsg = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+       if (banner) {
+         banner.innerHTML = '<strong>Backend Validation Failed (Tier 1 Hard Reject)</strong><br/>' + escHtml(errMsg);
+         banner.style.display = 'block';
+       }
+       var formTop = document.getElementById('candidate-form-fields');
+       if (formTop) formTop.scrollIntoView({ behavior: 'smooth', block: 'start' });
+       return;
+    }
+    record = Object.assign(record, data.data || {});
+  } catch (err) {
+    if (banner) {
+      banner.innerHTML = '<strong>Network Error</strong><br/>Could not reach backend API at http://localhost:8000';
+      banner.style.display = 'block';
+    }
+    return;
+  }
 
   if (editingId) {
     saved = await updateSubmission(editingId, Object.assign({}, record, { updatedAt: new Date().toISOString() }));
@@ -1231,7 +1257,7 @@ function renderAuditLog() {
       if (n.indexOf(lc) === -1 && e.indexOf(lc) === -1) return false;
     }
 
-    if (status && s.interviewStatus !== status) return false;
+    if (status && s.pathTaken !== status) return false;
 
     if (flagged === 'yes' && !s.flaggedForManager) return false;
     if (flagged === 'no' && s.flaggedForManager) return false;
@@ -1252,7 +1278,7 @@ function renderAuditLog() {
   }
 
   tbody.innerHTML = filtered.map(function (s, i) {
-    var sc = 'status-' + String(s.interviewStatus || '').toLowerCase();
+    var sc = 'status-' + String(s.pathTaken || '').toLowerCase();
     var exc = (Number(s.exceptionCount || 0) > 0)
       ? '<span class="rule-badge rule-badge--soft">' + escHtml(String(s.exceptionCount)) + '</span>'
       : '<span style="color:var(--text-muted)">—</span>';
@@ -1261,7 +1287,7 @@ function renderAuditLog() {
       ? '<span class="flagged-badge">Flagged</span>'
       : '<span style="color:var(--text-muted)">—</span>';
 
-    var stBadge = '<span class="status-badge ' + escHtml(sc) + '">' + escHtml(String(s.interviewStatus || '')) + '</span>';
+    var stBadge = '<span class="status-badge ' + escHtml(sc) + '">' + escHtml(String(s.pathTaken || '')) + '</span>';
 
     return '' +
       '<tr class="' + (s.flaggedForManager ? 'flagged-row' : '') + '" data-id="' + escHtml(s.id) + '">' +

@@ -264,11 +264,13 @@ function exportCSV() {
   var subs = getSubmissions();
   if (!subs.length) return;
 
-  var softFields = ['dateOfBirth', 'graduationYear', 'percentageOrCgpa', 'screeningTestScore'];
+  var softFields = ['itiCompletionDate', 'itiScore', 'workStartDate', 'workEndDate'];
 
   var baseHeaders = [
-    'id', 'fullName', 'email', 'phone', 'dateOfBirth', 'highestQualification', 'graduationYear',
-    'percentageOrCgpa', 'screeningTestScore', 'interviewStatus', 'aadhaarNumber', 'offerLetterSent',
+    'id', 'fullName', 'email', 'phone', 'tenthCompletionDate', 'tenthScore', 
+    'itiCompletionDate', 'itiScore', 'twelfthOrDiplomaCompletionDate', 'twelfthOrDiplomaScore',
+    'ugCompletionDate', 'ugScore', 'workStartDate', 'workEndDate',
+    'pathTaken', 'normalizedScore', 'totalExpMonths', 'isFlagged',
     'exceptionCount', 'flaggedForManager', 'createdAt', 'updatedAt'
   ];
 
