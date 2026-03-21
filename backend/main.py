@@ -5,17 +5,11 @@ from backend.services.validation_service import ValidationEngine
 from backend.services.sheets_service import save_application_to_sheets
 from backend.services.ai_service import get_university_suggestions
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
 
 app = FastAPI(title="AdmitGuard v2 API")
 
-app.mount("/src", StaticFiles(directory="src"), name="src")
 app.mount("/config", StaticFiles(directory="config"), name="config")
 app.mount("/assets", StaticFiles(directory="src/assets", check_dir=False), name="assets")
-
-@app.get("/")
-def serve_frontend():
-    return FileResponse("src/index.html")
 
 @app.get("/health")
 def health_check():
@@ -56,3 +50,6 @@ def submit_application(payload: ApplicationPayload):
         "message": "Application processed and saved" if save_success else "Processed but failed to save",
         "data": payload_dict
     }
+
+# Mount the static frontend at the root (must be placed after all API routes)
+app.mount("/", StaticFiles(directory="src", html=True), name="src")
